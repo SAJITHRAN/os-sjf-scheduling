@@ -1,80 +1,71 @@
 #include <stdio.h>
+#include <string.h>
 
-struct Process {
+struct Process{
     char pid[10];
-    int at;
-    int bt;
-    int ct;
-    int wt;
-    int tat;
+    int at, bt, ct, wt, tat;
     int finished;
 };
 
-int main() {
+int main(){
 
     int n;
-    printf("Enter number of processes: ");
-    scanf("%d", &n);
+    scanf("%d",&n);
 
-    struct Process p[20];
+    struct Process proc[100];
 
-    for(int i = 0; i < n; i++) {
-        printf("Enter PID, Arrival Time and Burst Time: ");
-        scanf("%s %d %d", p[i].pid, &p[i].at, &p[i].bt);
-        p[i].finished = 0;
+    for(int i=0;i<n;i++){
+        scanf("%s %d %d",proc[i].pid,&proc[i].at,&proc[i].bt);
+        proc[i].finished=0;
     }
 
-    int completed = 0;
-    int currentTime = 0;
+    int currentTime=0, doneCount=0;
 
-    while(completed < n) {
+    while(doneCount<n){
 
-        int shortest = -1;
+        int index=-1;
+        int minBT=9999;
 
-        for(int i = 0; i < n; i++) {
-
-            if(p[i].finished == 0 && p[i].at <= currentTime) {
-
-                if(shortest == -1 || p[i].bt < p[shortest].bt) {
-                    shortest = i;
+        for(int i=0;i<n;i++){
+            if(proc[i].finished==0 && proc[i].at<=currentTime){
+                if(proc[i].bt<minBT){
+                    minBT=proc[i].bt;
+                    index=i;
                 }
             }
         }
 
-        if(shortest == -1) {
+        if(index==-1){
             currentTime++;
-            continue;
         }
+        else{
+            currentTime+=proc[index].bt;
 
-        currentTime += p[shortest].bt;
+            proc[index].ct=currentTime;
+            proc[index].tat=proc[index].ct-proc[index].at;
+            proc[index].wt=proc[index].tat-proc[index].bt;
 
-        p[shortest].ct = currentTime;
-        p[shortest].tat = p[shortest].ct - p[shortest].at;
-        p[shortest].wt = p[shortest].tat - p[shortest].bt;
-
-        p[shortest].finished = 1;
-        completed++;
+            proc[index].finished=1;
+            doneCount++;
+        }
     }
 
-    float totalWT = 0;
-    float totalTAT = 0;
+    float totalWT=0,totalTAT=0;
 
-    printf("\nWaiting Time:\n");
-
-    for(int i = 0; i < n; i++) {
-        printf("%s %d\n", p[i].pid, p[i].wt);
-        totalWT += p[i].wt;
+    printf("Waiting Time:\n");
+    for(int i=0;i<n;i++){
+        printf("%s %d\n",proc[i].pid,proc[i].wt);
+        totalWT+=proc[i].wt;
     }
 
-    printf("\nTurnaround Time:\n");
-
-    for(int i = 0; i < n; i++) {
-        printf("%s %d\n", p[i].pid, p[i].tat);
-        totalTAT += p[i].tat;
+    printf("Turnaround Time:\n");
+    for(int i=0;i<n;i++){
+        printf("%s %d\n",proc[i].pid,proc[i].tat);
+        totalTAT+=proc[i].tat;
     }
 
-    printf("\nAverage Waiting Time: %.2f", totalWT / n);
-    printf("\nAverage Turnaround Time: %.2f\n", totalTAT / n);
+    printf("Average Waiting Time: %.2f\n",totalWT/n);
+    printf("Average Turnaround Time: %.2f\n",totalTAT/n);
 
     return 0;
 }
